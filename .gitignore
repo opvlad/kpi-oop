@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+
+# redis
+*.rdb
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+.pytest_cache/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# PyCharm
+.idea/
+
+# Visual Studio Code
+ .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+.claude
