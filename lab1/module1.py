@@ -8,11 +8,7 @@ def ask_group(parent_window) -> None:
         fiot_groups = json.load(file)
 
     group, ok = QInputDialog.getItem(
-        parent_window,
-        "Select group",
-        "label",
-        fiot_groups,
-        editable=False
+        parent_window, "Select group", "Group", fiot_groups, editable=False
     )
     if ok:
         parent_window.data_label.setText(group)

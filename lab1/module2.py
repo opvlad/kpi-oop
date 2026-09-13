@@ -1,10 +1,17 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog, QScrollBar, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PySide6.QtWidgets import (
+    QDialog,
+    QScrollBar,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QLabel,
+)
 
 
 class ScrollingDialog(QDialog):
     def __init__(self, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowTitle("Choose value")
         self.resize(250, 150)
 

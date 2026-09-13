@@ -1,8 +1,16 @@
 import sys
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, \
-    QInputDialog, QLineEdit, QStatusBar
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QInputDialog,
+    QLineEdit,
+    QStatusBar,
+)
 
 from PySide6.QtGui import QFont
 
@@ -25,7 +33,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Main content area"), alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(
+            QLabel("Main content area"), alignment=Qt.AlignmentFlag.AlignCenter
+        )
         central_widget.setLayout(layout)
 
         self._create_actions()
@@ -82,7 +92,6 @@ class MainWindow(QMainWindow):
         self.__zoom_out_action.setActionGroup(view_group)
         self.__zoom_out_action.triggered.connect(__handle_zoom_out_action)
 
-
     def _create_menus(self):
         menubar = self.menuBar()
 
@@ -99,8 +108,6 @@ class MainWindow(QMainWindow):
         view_menu = menubar.addMenu("&View")
         view_menu.addAction(self.__zoom_in_action)
         view_menu.addAction(self.__zoom_out_action)
-
-
 
     def _create_toolbars(self):
         toolbar = self.addToolBar("File")
@@ -122,9 +129,6 @@ class MainWindow(QMainWindow):
 
         self.label_position = QLabel("x: 0, y: 0")
         status_bar.addPermanentWidget(self.label_position)
-
-
-
 
 
 app = QApplication(sys.argv)
