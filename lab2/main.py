@@ -12,14 +12,14 @@ class ObjectsAction(QAction):
 
     def __init__(self, text: str, parent, tool: ToolBase):
         super().__init__(text, parent)
-        self.__create_action_group(parent)
+        self._create_action_group(parent)
         self.setCheckable(True)
         self.setActionGroup(self.action_group)
         self.tool = tool
         self.triggered.connect(parent.set_current_tool)
 
     @classmethod
-    def __create_action_group(cls, parent):
+    def _create_action_group(cls, parent):
         if cls.action_group is None:
             cls.action_group = QActionGroup(parent)
 
@@ -48,14 +48,14 @@ class MainWindow(QMainWindow):
         # Start with freehand tool selected
         self.current_tool = TOOLS[Tool.FREEHAND]
 
-        self.__create_menubar()
+        self._create_menubar()
 
     def set_current_tool(self):
         for action in self.objects_menu.menu.actions():
             if action.isChecked() and isinstance(action, ObjectsAction):
                 self.current_tool = action.tool
 
-    def __create_menubar(self):
+    def _create_menubar(self):
         menubar = self.menuBar()
 
         file_menu = menubar.addMenu("Файл")
