@@ -1,8 +1,9 @@
 from enum import Enum, auto
 from abc import ABC, abstractmethod
 
+from PySide6.QtGui import QColor
 from PySide6.QtCore import QPoint, QRect
-from PySide6.QtGui import QPainter, QPainterPath
+from PySide6.QtGui import QPainter, QPainterPath, QBrush, Qt
 
 
 class Tool(Enum):
@@ -27,12 +28,19 @@ class ToolBase(ABC):
 
     @staticmethod
     def draw_finished(widget, painter: QPainter) -> None:
-        for path in widget.strokes:
-            if isinstance(path, QRect):
-                painter.drawRect(path)
+        for tool, args in widget.strokes:
+            if tool == Tool.RECTANGLE:
+                brush = QBrush(QColor("yellow"))
+                painter.setBrush(brush)
+                painter.drawRect(args)
+                painter.setBrush(Qt.BrushStyle.NoBrush)
                 continue
 
-            painter.drawPath(path)
+            elif tool == Tool.ELLIPSE:
+                painter.drawEllipse(*args)
+                continue
+
+            painter.drawPath(args)
 
 
 class FreehandTool(ToolBase):
@@ -48,7 +56,7 @@ class FreehandTool(ToolBase):
         widget.update()
 
     def release(self, widget, pos: QPoint) -> None:
-        widget.strokes.append(self.path)
+        widget.strokes.append((Tool.FREEHAND, self.path))
         self.path = None
         widget.update()
 
@@ -73,7 +81,7 @@ class LineTool(ToolBase):
         path = QPainterPath()
         path.moveTo(self.start)
         path.lineTo(pos)
-        widget.strokes.append(path)
+        widget.strokes.append((Tool.LINE, path))
         self.start, self.end = None, None
         widget.update()
 
@@ -97,7 +105,7 @@ class RectTool(ToolBase):
 
     def release(self, widget, pos: QPoint) -> None:
         self.rect = QRect(self.start, self.end)
-        widget.strokes.append(self.rect)
+        widget.strokes.append((Tool.RECTANGLE, self.rect))
         self.rect, self.start, self.end = None, None, None
         widget.update()
 
@@ -122,14 +130,13 @@ class EllipseTool(ToolBase):
         widget.update()
 
     def release(self, widget, pos: QPoint) -> None:
-        pass
+        widget.strokes.append((Tool.ELLIPSE, (self.center, self.rx, self.ry)))
+        self.center, self.rx, self.ry = None, None, None
+        widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.center and self.rx and self.ry:
-            painter.drawEllipse(self.center, self.ry, self.rx)
-
-    # def drow_preview(self, widget, painter: QPainter) -> None:
-    #     painter.drawEllipse()
+            painter.drawEllipse(self.center, self.rx, self.ry)
 
 
 TOOLS = {
