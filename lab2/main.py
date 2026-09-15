@@ -1,34 +1,10 @@
 import sys
-from enum import Enum, auto
-from abc import ABC, abstractmethod
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
-from PySide6.QtCore import Qt, QPoint
-from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QPainterPath
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter
 
-
-class Tool(Enum):
-    FREEHAND = auto()
-    LINE = auto()
-    RECTANGLE = auto()
-    ELLIPSE = auto()
-
-
-class ToolBase(ABC):
-    @abstractmethod
-    def press(self, widget, pos: QPoint) -> None: ...
-
-    @abstractmethod
-    def move(self, widget, pos: QPoint) -> None: ...
-
-    @abstractmethod
-    def release(self, widget, pos: QPoint) -> None: ...
-
-    @abstractmethod
-    def draw_preview(self, widget, painter: QPainter) -> None: ...
-
-    @abstractmethod
-    def draw_finished(self, widget, painter: QPainter) -> None: ...
+from shape_tools import Tool, TOOLS, ToolBase
 
 
 class ObjectsAction(QAction):
@@ -57,32 +33,6 @@ class ObjectsMenu:
             self.menu.addAction(action)
 
 
-class FreehandTool(ToolBase):
-    def __init__(self):
-        self.path = None
-
-    def press(self, widget, pos: QPoint) -> None:
-        self.path = QPainterPath()
-        self.path.moveTo(pos)
-
-    def move(self, widget, pos: QPoint) -> None:
-        self.path.lineTo(pos)
-        widget.update()
-
-    def release(self, widget, pos: QPoint) -> None:
-        widget.strokes.append(self.path)
-        self.path = None
-        widget.update()
-
-    def draw_preview(self, widget, painter: QPainter) -> None:
-        if self.path:
-            painter.drawPath(self.path)
-
-    def draw_finished(self, widget, painter: QPainter) -> None:
-        for path in window.strokes:
-            painter.drawPath(path)
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -96,13 +46,7 @@ class MainWindow(QMainWindow):
         self.current_path = None
         self.pen = QPen(QColor("black"), 3)
 
-        self.__tools = {
-            Tool.FREEHAND: FreehandTool(),
-            Tool.LINE: ...,
-            Tool.RECTANGLE: ...,
-            Tool.ELLIPSE: ...,
-        }
-        self.current_tool = self.__tools[Tool.FREEHAND]
+        self.current_tool = TOOLS[Tool.FREEHAND]
 
         self.__create_menubar()
 
@@ -118,13 +62,13 @@ class MainWindow(QMainWindow):
         self.objects_menu = ObjectsMenu(menubar)
         help_menu = menubar.addMenu("Довідка")
 
-        self.point_action = ObjectsAction("Крапка", self, self.__tools[Tool.FREEHAND])
+        self.point_action = ObjectsAction("Крапка", self, TOOLS[Tool.FREEHAND])
         self.point_action.setChecked(True)
-        self.line_action = ObjectsAction("Лінія", self, self.__tools[Tool.LINE])
+        self.line_action = ObjectsAction("Лінія", self, TOOLS[Tool.LINE])
         self.rectangle_action = ObjectsAction(
-            "Прямокутник", self, self.__tools[Tool.RECTANGLE]
+            "Прямокутник", self, TOOLS[Tool.RECTANGLE]
         )
-        self.ellipse_action = ObjectsAction("Еліпс", self, self.__tools[Tool.ELLIPSE])
+        self.ellipse_action = ObjectsAction("Еліпс", self, TOOLS[Tool.ELLIPSE])
 
         self.objects_menu.add_actions(
             [
