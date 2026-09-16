@@ -10,11 +10,13 @@ from shape_tools import Tool, TOOLS, ToolBase
 class ObjectsAction(QAction):
     action_group = None
 
-    def __init__(self, text: str, parent, tool: ToolBase):
+    def __init__(self, text: str, parent, tool: ToolBase, tip: str):
         super().__init__(text, parent)
         self._create_action_group(parent)
         self.setCheckable(True)
         self.setActionGroup(self.action_group)
+        self.setToolTip(tip)
+
         self.tool = tool
         self.triggered.connect(parent.set_current_tool)
 
@@ -36,7 +38,7 @@ class ObjectsMenu:
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Lab 2")
+        self.setWindowTitle("Lab 3")
         self.resize(800, 600)
 
         central_widget = QWidget()
@@ -57,13 +59,13 @@ class MainWindow(QMainWindow):
                 self.current_tool = action.tool
 
     def _create_actions(self):
-        self.point_action = ObjectsAction("Крапка", self, TOOLS[Tool.FREEHAND])
+        self.point_action = ObjectsAction("Крапка", self, TOOLS[Tool.FREEHAND], "Олівець")
         self.point_action.setChecked(True)
-        self.line_action = ObjectsAction("Лінія", self, TOOLS[Tool.LINE])
+        self.line_action = ObjectsAction("Лінія", self, TOOLS[Tool.LINE], "Намалювати лінію")
         self.rectangle_action = ObjectsAction(
-            "Прямокутник", self, TOOLS[Tool.RECTANGLE]
+            "Прямокутник", self, TOOLS[Tool.RECTANGLE], "Намалювати прямокутник"
         )
-        self.ellipse_action = ObjectsAction("Еліпс", self, TOOLS[Tool.ELLIPSE])
+        self.ellipse_action = ObjectsAction("Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс")
 
     def _create_menubar(self):
         menubar = self.menuBar()
