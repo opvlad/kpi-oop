@@ -133,7 +133,6 @@ class FreehandTool(ToolBase):
 
     def release(self, widget, pos: QPoint) -> None:
         widget.strokes.append(DrawnPath(self.path))
-        self.path = None
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -158,7 +157,6 @@ class LineTool(ToolBase):
         path.moveTo(self.start)
         path.lineTo(pos)
         widget.strokes.append(DrawnPath(path))
-        self.start, self.end = None, None
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -186,7 +184,6 @@ class RectTool(ToolBase):
         if self.start and self.end:
             rect = QRect(self.start, self.end)
             widget.strokes.append(DrawnRect(rect))
-            self.center, self.start, self.end = None, None, None
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -216,13 +213,6 @@ class EllipseTool(ToolBase):
     def release(self, widget, pos: QPoint) -> None:
         if self.center and self.rx and self.ry:
             widget.strokes.append(DrawnEllipse(self.center, self.rx, self.ry))
-            self.start, self.end, self.center, self.rx, self.ry = (
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -239,7 +229,6 @@ class LineWithCirclesTool(LineTool, EllipseTool):
     def release(self, widget, pos: QPoint) -> None:
         if self.start and self.end:
             widget.strokes.append(DrawnLineWithCircles(self.start, self.end, self.radius))
-            self.start, self.end = None, None
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -261,7 +250,6 @@ class CubeTool(RectTool, LineTool):
     def release(self, widget, pos: QPoint) -> None:
         if self.start and self.end:
             widget.strokes.append(DrawnCube(self.start, self.end))
-            self.center, self.start, self.end = None, None, None
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -303,10 +291,10 @@ class CubeTool(RectTool, LineTool):
 
 
 TOOLS = {
-    Tool.FREEHAND: FreehandTool(),
-    Tool.LINE: LineTool(),
-    Tool.RECTANGLE: RectTool(),
-    Tool.ELLIPSE: EllipseTool(),
-    Tool.LINE_WITH_CIRCLES: LineWithCirclesTool(),
-    Tool.CUBE: CubeTool(),
+    Tool.FREEHAND: FreehandTool,
+    Tool.LINE: LineTool,
+    Tool.RECTANGLE: RectTool,
+    Tool.ELLIPSE: EllipseTool,
+    Tool.LINE_WITH_CIRCLES: LineWithCirclesTool,
+    Tool.CUBE: CubeTool,
 }
