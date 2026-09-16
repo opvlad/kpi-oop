@@ -1,4 +1,5 @@
 import sys  # noqa
+from typing import Type
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
@@ -7,17 +8,51 @@ from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter
 from shape_tools import Tool, TOOLS, ToolBase
 
 
+class Canvas(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.strokes = []
+        self.pen = QPen(QColor("red"), 3, Qt.PenStyle.DashLine)
+
+        self.current_tool_class = TOOLS[Tool.FREEHAND]
+        self.active_tool = None
+
+    def mousePressEvent(self, event):
+        if self.current_tool_class and event.button() == Qt.MouseButton.LeftButton:
+            self.active_tool = self.current_tool_class()
+            self.active_tool.press(self, event.position().toPoint())
+
+    def mouseMoveEvent(self, event):
+        if self.active_tool and event.buttons() == Qt.MouseButton.LeftButton:
+            self.active_tool.move(self, event.position().toPoint())
+
+    def mouseReleaseEvent(self, event):
+        if self.active_tool and event.button() == Qt.MouseButton.LeftButton:
+            self.active_tool.release(self, event.position().toPoint())
+            self.active_tool = None
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(self.pen)
+
+        ToolBase.draw_finished(self, painter)
+
+        if self.active_tool:
+            self.active_tool.draw_preview(self, painter)
+
+
 class ObjectsAction(QAction):
     action_group = None
 
-    def __init__(self, text: str, parent, tool: ToolBase, tip: str):
+    def __init__(self, text: str, parent, tool_class: Type[ToolBase], tip: str):
         super().__init__(text, parent)
         self._create_action_group(parent)
         self.setCheckable(True)
         self.setActionGroup(self.action_group)
         self.setToolTip(tip)
 
-        self.tool = tool
+        self.tool_class = tool_class
         self.triggered.connect(parent.set_current_tool)
 
     @classmethod
@@ -41,13 +76,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Lab 3")
         self.resize(800, 600)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
-        self.strokes = []
-        self.pen = QPen(QColor("red"), 3)
-
-        self.current_tool = TOOLS[Tool.FREEHAND]
+        self.canvas = Canvas()
+        self.setCentralWidget(self.canvas)
 
         self._create_actions()
         self._create_menubar()
@@ -56,7 +86,7 @@ class MainWindow(QMainWindow):
     def set_current_tool(self):
         for action in self.objects_menu.menu.actions():
             if action.isChecked() and isinstance(action, ObjectsAction):
-                self.current_tool = action.tool
+                self.canvas.current_tool_class = action.tool_class
 
     def _create_actions(self):
         self.point_action = ObjectsAction(
@@ -96,26 +126,6 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.line_action)
         toolbar.addAction(self.rectangle_action)
         toolbar.addAction(self.ellipse_action)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.current_tool.press(self, event.position().toPoint())
-
-    def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.MouseButton.LeftButton:
-            self.current_tool.move(self, event.position().toPoint())
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.current_tool.release(self, event.position().toPoint())
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(self.pen)
-
-        self.current_tool.draw_preview(self, painter)
-        self.current_tool.draw_finished(self, painter)
 
 
 if __name__ == "__main__":
