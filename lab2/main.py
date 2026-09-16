@@ -45,7 +45,6 @@ class MainWindow(QMainWindow):
         self.strokes = []
         self.pen = QPen(QColor("black"), 3)
 
-        # Start with freehand tool selected
         self.current_tool = TOOLS[Tool.FREEHAND]
 
         self._create_menubar()
