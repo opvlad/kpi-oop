@@ -57,7 +57,6 @@ class FreehandTool(ToolBase):
 
     def release(self, widget, pos: QPoint) -> None:
         widget.strokes.append((Tool.FREEHAND, self.path))
-        self.path = None
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -82,7 +81,6 @@ class LineTool(ToolBase):
         path.moveTo(self.start)
         path.lineTo(pos)
         widget.strokes.append((Tool.LINE, path))
-        self.start, self.end = None, None
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -106,7 +104,6 @@ class RectTool(ToolBase):
     def release(self, widget, pos: QPoint) -> None:
         self.rect = QRect(self.start, self.end)
         widget.strokes.append((Tool.RECTANGLE, self.rect))
-        self.rect, self.start, self.end = None, None, None
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -131,7 +128,6 @@ class EllipseTool(ToolBase):
 
     def release(self, widget, pos: QPoint) -> None:
         widget.strokes.append((Tool.ELLIPSE, (self.center, self.rx, self.ry)))
-        self.center, self.rx, self.ry = None, None, None
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -140,8 +136,8 @@ class EllipseTool(ToolBase):
 
 
 TOOLS = {
-    Tool.FREEHAND: FreehandTool(),
-    Tool.LINE: LineTool(),
-    Tool.RECTANGLE: RectTool(),
-    Tool.ELLIPSE: EllipseTool(),
+    Tool.FREEHAND: FreehandTool,
+    Tool.LINE: LineTool,
+    Tool.RECTANGLE: RectTool,
+    Tool.ELLIPSE: EllipseTool,
 }
