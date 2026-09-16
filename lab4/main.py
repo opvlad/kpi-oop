@@ -1,4 +1,5 @@
 import sys  # noqa
+from typing import Type
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
@@ -7,10 +8,44 @@ from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter
 from shape_tools import Tool, TOOLS, ToolBase
 
 
+class Canvas(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.strokes = []
+        self.pen = QPen(QColor("red"), 3, Qt.PenStyle.DashLine)
+
+        self.current_tool_class = TOOLS[Tool.FREEHAND]
+        self.active_tool = None
+
+    def mousePressEvent(self, event):
+        if self.current_tool_class and event.button() == Qt.MouseButton.LeftButton:
+            self.active_tool = self.current_tool_class()
+            self.active_tool.press(self, event.position().toPoint())
+
+    def mouseMoveEvent(self, event):
+        if self.active_tool and event.buttons() == Qt.MouseButton.LeftButton:
+            self.active_tool.move(self, event.position().toPoint())
+
+    def mouseReleaseEvent(self, event):
+        if self.active_tool and event.button() == Qt.MouseButton.LeftButton:
+            self.active_tool.release(self, event.position().toPoint())
+            self.active_tool = None
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(self.pen)
+
+        ToolBase.draw_finished(self, painter)
+
+        if self.active_tool:
+            self.active_tool.draw_preview(self, painter)
+
+
 class ObjectsAction(QAction):
     action_group = None
 
-    def __init__(self, text: str, parent, tool_class: ToolBase, tip: str):
+    def __init__(self, text: str, parent, tool_class: Type[ToolBase], tip: str):
         super().__init__(text, parent)
         self._create_action_group(parent)
         self.setCheckable(True)
@@ -41,14 +76,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Lab 3")
         self.resize(800, 600)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
-        self.strokes = []
-        self.pen = QPen(QColor("red"), 3, Qt.PenStyle.DashLine)
-
-        self.current_tool_class = TOOLS[Tool.FREEHAND]
-        self.active_tool = self.current_tool_class()
+        self.canvas = Canvas()
+        self.setCentralWidget(self.canvas)
 
         self._create_actions()
         self._create_menubar()
@@ -57,18 +86,27 @@ class MainWindow(QMainWindow):
     def set_current_tool(self):
         for action in self.objects_menu.menu.actions():
             if action.isChecked() and isinstance(action, ObjectsAction):
-                self.current_tool_class = action.tool_class
+                self.canvas.current_tool_class = action.tool_class
 
     def _create_actions(self):
-        self.point_action = ObjectsAction("Крапка", self, TOOLS[Tool.FREEHAND], "Олівець")
+        self.point_action = ObjectsAction(
+            "Крапка", self, TOOLS[Tool.FREEHAND], "Олівець"
+        )
         self.point_action.setChecked(True)
-        self.line_action = ObjectsAction("Лінія", self, TOOLS[Tool.LINE], "Намалювати лінію")
+        self.line_action = ObjectsAction(
+            "Лінія", self, TOOLS[Tool.LINE], "Намалювати лінію"
+        )
         self.rectangle_action = ObjectsAction(
             "Прямокутник", self, TOOLS[Tool.RECTANGLE], "Намалювати прямокутник"
         )
-        self.ellipse_action = ObjectsAction("Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс")
+        self.ellipse_action = ObjectsAction(
+            "Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс"
+        )
         self.line_with_circles_action = ObjectsAction(
-            "Лінія з кружечками", self, TOOLS[Tool.LINE_WITH_CIRCLES], "Намалювати лінію з кружечками"
+            "Лінія з кружечками",
+            self,
+            TOOLS[Tool.LINE_WITH_CIRCLES],
+            "Намалювати лінію з кружечками",
         )
         self.cube_action = ObjectsAction(
             "Куб", self, TOOLS[Tool.CUBE], "Намалювати каркас куба"
@@ -101,31 +139,6 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.ellipse_action)
         toolbar.addAction(self.line_with_circles_action)
         toolbar.addAction(self.cube_action)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.active_tool = self.current_tool_class()
-            self.active_tool.press(self, event.position().toPoint())
-
-    def mouseMoveEvent(self, event):
-        if self.active_tool and event.buttons() == Qt.MouseButton.LeftButton:
-            self.active_tool.move(self, event.position().toPoint())
-
-    def mouseReleaseEvent(self, event):
-        if self.active_tool and event.button() == Qt.MouseButton.LeftButton:
-            print(self.active_tool)
-            self.active_tool.release(self, event.position().toPoint())
-            self.active_tool = None
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(self.pen)
-
-        ToolBase.draw_finished(self, painter)
-
-        if self.active_tool:
-            self.active_tool.draw_preview(self, painter)
 
 
 if __name__ == "__main__":

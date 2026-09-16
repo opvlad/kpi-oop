@@ -15,7 +15,7 @@ class Tool(Enum):
     ELLIPSE = auto()
 
 
-class ToolBase(ABC): # noqa
+class ToolBase(ABC):  # noqa
     @abstractmethod
     def press(self, widget, pos: QPoint) -> None: ...
 

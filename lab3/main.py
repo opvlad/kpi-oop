@@ -59,13 +59,19 @@ class MainWindow(QMainWindow):
                 self.current_tool = action.tool
 
     def _create_actions(self):
-        self.point_action = ObjectsAction("Крапка", self, TOOLS[Tool.FREEHAND], "Олівець")
+        self.point_action = ObjectsAction(
+            "Крапка", self, TOOLS[Tool.FREEHAND], "Олівець"
+        )
         self.point_action.setChecked(True)
-        self.line_action = ObjectsAction("Лінія", self, TOOLS[Tool.LINE], "Намалювати лінію")
+        self.line_action = ObjectsAction(
+            "Лінія", self, TOOLS[Tool.LINE], "Намалювати лінію"
+        )
         self.rectangle_action = ObjectsAction(
             "Прямокутник", self, TOOLS[Tool.RECTANGLE], "Намалювати прямокутник"
         )
-        self.ellipse_action = ObjectsAction("Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс")
+        self.ellipse_action = ObjectsAction(
+            "Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс"
+        )
 
     def _create_menubar(self):
         menubar = self.menuBar()

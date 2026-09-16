@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import Generator
+from typing import Generator, Type
 from dataclasses import dataclass
 
 from PySide6.QtGui import QColor
@@ -86,8 +86,14 @@ class DrawnCube(DrawnShape):
             painter.drawRect(QRect(back_start, back_end))
 
             painter.drawLine(self.front_start, back_start)
-            painter.drawLine(QPoint(self.front_end.x(), self.front_start.y()), QPoint(back_end.x(), back_start.y()))
-            painter.drawLine(QPoint(self.front_start.x(), self.front_end.y()), QPoint(back_start.x(), back_end.y()))
+            painter.drawLine(
+                QPoint(self.front_end.x(), self.front_start.y()),
+                QPoint(back_end.x(), back_start.y()),
+            )
+            painter.drawLine(
+                QPoint(self.front_start.x(), self.front_end.y()),
+                QPoint(back_start.x(), back_end.y()),
+            )
             painter.drawLine(self.front_end, back_end)
 
 
@@ -228,7 +234,9 @@ class LineWithCirclesTool(LineTool, EllipseTool):
 
     def release(self, widget, pos: QPoint) -> None:
         if self.start and self.end:
-            widget.strokes.append(DrawnLineWithCircles(self.start, self.end, self.radius))
+            widget.strokes.append(
+                DrawnLineWithCircles(self.start, self.end, self.radius)
+            )
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -271,14 +279,14 @@ class CubeTool(RectTool, LineTool):
                 front_start,
                 QPoint(front_end.x(), front_start.y()),
                 QPoint(front_start.x(), front_end.y()),
-                front_end
+                front_end,
             )
 
             corners_back = (
                 self.start,
                 QPoint(self.end.x(), self.start.y()),
                 QPoint(self.start.x(), self.end.y()),
-                self.end
+                self.end,
             )
 
             for front, back in zip(corners_front, corners_back):
@@ -290,7 +298,7 @@ class CubeTool(RectTool, LineTool):
             self.end = front_end
 
 
-TOOLS = {
+TOOLS: dict[Tool, Type[ToolBase]] = {
     Tool.FREEHAND: FreehandTool,
     Tool.LINE: LineTool,
     Tool.RECTANGLE: RectTool,
