@@ -3,7 +3,7 @@ from typing import Type
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QBrush
+from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QBrush, QPalette
 
 from shape_tools import Tool, TOOLS, ToolBase
 
@@ -13,6 +13,11 @@ class Canvas(QWidget):
         super().__init__()
         self.strokes = []
         self.pen = QPen(QColor("black"), 3)
+
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.ColorRole.Window, QColor("white"))
+        self.setPalette(palette)
 
         self.current_tool_class = TOOLS[Tool.FREEHAND]
         self.active_tool = None
