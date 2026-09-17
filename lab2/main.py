@@ -3,7 +3,7 @@ from typing import Type
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter
+from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QBrush
 
 from shape_tools import Tool, TOOLS, ToolBase
 
@@ -35,6 +35,7 @@ class Canvas(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(self.pen)
+        painter.setBackground(QBrush(QColor("red")))
 
         ToolBase.draw_finished(self, painter)
 

@@ -3,7 +3,7 @@ from typing import Type
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter
+from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon
 
 from shape_tools import Tool, TOOLS, ToolBase
 
@@ -102,6 +102,11 @@ class MainWindow(QMainWindow):
         self.ellipse_action = ObjectsAction(
             "Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс"
         )
+        self.point_action.setIcon(QIcon("../icons/pencil.svg"))
+        self.line_action.setIcon(QIcon("../icons/minus.svg"))
+        self.rectangle_action.setIcon(QIcon("../icons/rectangle.svg"))
+        self.ellipse_action.setIcon(QIcon("../icons/ellipse.svg"))
+
 
     def _create_menubar(self):
         menubar = self.menuBar()
