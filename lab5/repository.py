@@ -7,12 +7,12 @@ from shape_table import ShapeTableModel
 class ShapeRepository:
     def __init__(self):
         self._shapes = []
-        self.table_model = ShapeTableModel()
+        self.table_model = ShapeTableModel(self._shapes)
 
     def get_shapes(self):
         return self._shapes
 
-    def add(self, shape: DrawnShape):
+    def add(self, shape):
         new_row_index = len(self._shapes)
         self.table_model.beginInsertRows(QModelIndex(), new_row_index, new_row_index)
         self._shapes.append(shape)

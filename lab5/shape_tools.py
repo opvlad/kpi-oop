@@ -267,9 +267,7 @@ class LineWithCirclesTool(LineTool, EllipseTool):
 
     def release(self, widget, shape_repo, pos: QPoint) -> None:
         if self.start and self.end:
-            shape_repo.add(
-                DrawnLineWithCircles(self.start, self.end, self.radius)
-            )
+            shape_repo.add(DrawnLineWithCircles(self.start, self.end, self.radius))
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:

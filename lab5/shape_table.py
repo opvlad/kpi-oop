@@ -12,15 +12,15 @@ class ShapeTableModel(QAbstractTableModel):
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self):
+    def __init__(self, shapes):
         if not self._is_initialized:
             super().__init__()
+            self._shapes = shapes
             self._headers = ["x1", "y1", "x2", "y2"]
-            self._data = [[1, 2, 3, 4], [5, 6, 7, 8]]
             self._is_initialized = True
 
     def rowCount(self, parent=None):
-        return len(self._data)
+        return len(self._shapes)
 
     def columnCount(self, parent=None):
         return len(self._headers)
@@ -48,7 +48,7 @@ class ShapeTableModel(QAbstractTableModel):
             return None
 
         if role == Qt.ItemDataRole.DisplayRole:
-            return str(self._data[index.row()][index.column()])
+            return str(self._shapes[index.row()][index.column()])
 
         return None
 
