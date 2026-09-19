@@ -38,7 +38,7 @@ class DrawnPath(DrawnShape):
 
     def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
         start = self.path.pointAtPercent(0.0)
-        end = self.path.pointAtPercent(100.0)
+        end = self.path.pointAtPercent(1.0)
         return start.x(), start.y(), end.x(), end.y()
 
 
@@ -136,14 +136,14 @@ class ToolBase(ABC):
     def move(self, widget, pos: QPoint) -> None: ...
 
     @abstractmethod
-    def release(self, widget, pos: QPoint) -> None: ...
+    def release(self, widget, shape_repo, pos: QPoint) -> None: ...
 
     @abstractmethod
     def draw_preview(self, widget, painter: QPainter) -> None: ...
 
     @staticmethod
-    def draw_finished(widget, painter: QPainter) -> None:
-        for shape in widget.shape_repo.get_shapes():
+    def draw_finished(shape_repo, painter: QPainter) -> None:
+        for shape in shape_repo.get_shapes():
             shape.draw(painter)
 
     @staticmethod
@@ -168,8 +168,8 @@ class FreehandTool(ToolBase):
         self.path.lineTo(pos)
         widget.update()
 
-    def release(self, widget, pos: QPoint) -> None:
-        widget.shape_repo.add(DrawnPath(self.path))
+    def release(self, widget, shape_repo, pos: QPoint) -> None:
+        shape_repo.add(DrawnPath(self.path))
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -189,11 +189,11 @@ class LineTool(ToolBase):
         self.end = pos
         widget.update()
 
-    def release(self, widget, pos: QPoint) -> None:
+    def release(self, widget, shape_repo, pos: QPoint) -> None:
         path = QPainterPath()
         path.moveTo(self.start)
         path.lineTo(pos)
-        widget.shape_repo.add(DrawnPath(path))
+        shape_repo.add(DrawnPath(path))
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -217,10 +217,10 @@ class RectTool(ToolBase):
         self.end = QPoint(self.center.x() + half_width, self.center.y() + half_height)
         widget.update()
 
-    def release(self, widget, pos: QPoint) -> None:
+    def release(self, widget, shape_repo, pos: QPoint) -> None:
         if self.start and self.end:
             rect = QRect(self.start, self.end)
-            widget.shape_repo.add(DrawnRect(rect))
+            shape_repo.add(DrawnRect(rect))
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -247,9 +247,9 @@ class EllipseTool(ToolBase):
         self.center = QPoint(self.start.x() + self.rx, self.start.y() + self.ry)
         widget.update()
 
-    def release(self, widget, pos: QPoint) -> None:
+    def release(self, widget, shape_repo, pos: QPoint) -> None:
         if self.center and self.rx and self.ry:
-            widget.shape_repo.add(
+            shape_repo.add(
                 DrawnEllipse(self.center, self.rx, self.ry, self.start, self.end)
             )
             widget.update()
@@ -265,9 +265,9 @@ class LineWithCirclesTool(LineTool, EllipseTool):
         EllipseTool.__init__(self)
         self.radius = 10
 
-    def release(self, widget, pos: QPoint) -> None:
+    def release(self, widget, shape_repo, pos: QPoint) -> None:
         if self.start and self.end:
-            widget.shape_repo.add(
+            shape_repo.add(
                 DrawnLineWithCircles(self.start, self.end, self.radius)
             )
             widget.update()
@@ -288,9 +288,9 @@ class CubeTool(RectTool, LineTool):
         RectTool.__init__(self)
         LineTool.__init__(self)
 
-    def release(self, widget, pos: QPoint) -> None:
+    def release(self, widget, shape_repo, pos: QPoint) -> None:
         if self.start and self.end:
-            widget.shape_repo.add(DrawnCube(self.start, self.end))
+            shape_repo.add(DrawnCube(self.start, self.end))
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:

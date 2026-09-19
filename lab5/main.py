@@ -6,14 +6,13 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
 
 from shape_tools import Tool, TOOLS, ToolBase
-from shape_table import ShapeTable, ShapeTableModel
-from repository import ShapeRepository
+from shape_table import ShapeTable
+from repository import shape_repo
 
 
 class Canvas(QWidget):
     def __init__(self):
         super().__init__()
-        self.shape_repo = ShapeRepository(ShapeTableModel())
         self.pen = QPen(QColor("red"), 3, Qt.PenStyle.DashLine)
 
         self.setAutoFillBackground(True)
@@ -35,7 +34,7 @@ class Canvas(QWidget):
 
     def mouseReleaseEvent(self, event):
         if self.active_tool and event.button() == Qt.MouseButton.LeftButton:
-            self.active_tool.release(self, event.position().toPoint())
+            self.active_tool.release(self, shape_repo, event.position().toPoint())
             self.active_tool = None
 
     def paintEvent(self, event):
@@ -43,7 +42,7 @@ class Canvas(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(self.pen)
 
-        ToolBase.draw_finished(self, painter)
+        ToolBase.draw_finished(shape_repo, painter)
 
         if self.active_tool:
             self.active_tool.draw_preview(self, painter)
