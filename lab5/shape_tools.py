@@ -8,8 +8,6 @@ from PySide6.QtGui import QColor
 from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QPainter, QPainterPath, QBrush, Qt, QPen
 
-from events import shape_events
-
 
 class Tool(Enum):
     FREEHAND = auto()
@@ -173,7 +171,6 @@ class FreehandTool(ToolBase):
     def release(self, widget, pos: QPoint) -> None:
         widget.shape_repo.add(DrawnPath(self.path))
         widget.update()
-        shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.path:
@@ -198,7 +195,6 @@ class LineTool(ToolBase):
         path.lineTo(pos)
         widget.shape_repo.add(DrawnPath(path))
         widget.update()
-        shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.start and self.end:
@@ -226,7 +222,6 @@ class RectTool(ToolBase):
             rect = QRect(self.start, self.end)
             widget.shape_repo.add(DrawnRect(rect))
             widget.update()
-            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.start and self.end:
@@ -258,7 +253,6 @@ class EllipseTool(ToolBase):
                 DrawnEllipse(self.center, self.rx, self.ry, self.start, self.end)
             )
             widget.update()
-            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.center and self.rx and self.ry:
@@ -277,7 +271,6 @@ class LineWithCirclesTool(LineTool, EllipseTool):
                 DrawnLineWithCircles(self.start, self.end, self.radius)
             )
             widget.update()
-            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         LineTool.draw_preview(self, widget, painter)
@@ -299,7 +292,6 @@ class CubeTool(RectTool, LineTool):
         if self.start and self.end:
             widget.shape_repo.add(DrawnCube(self.start, self.end))
             widget.update()
-            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.start and self.end:
