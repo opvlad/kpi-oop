@@ -4,7 +4,6 @@ from typing import Type
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
-from lab5.shape_table import ShapeTable
 
 from shape_tools import Tool, TOOLS, ToolBase
 from shape_table import ShapeTable

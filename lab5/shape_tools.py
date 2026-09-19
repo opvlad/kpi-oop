@@ -22,6 +22,11 @@ class DrawnShape(ABC):
     @abstractmethod
     def draw(self, painter: QPainter) -> None: ...
 
+    @abstractmethod
+    def get_coords(
+        self,
+    ) -> tuple[float | int, float | int, float | int, float | int]: ...
+
 
 @dataclass
 class DrawnPath(DrawnShape):
@@ -30,6 +35,11 @@ class DrawnPath(DrawnShape):
     def draw(self, painter: QPainter) -> None:
         with ToolBase.black_pen(painter):
             painter.drawPath(self.path)
+
+    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+        start = self.path.pointAtPercent(0.0)
+        end = self.path.pointAtPercent(100.0)
+        return start.x(), start.y(), end.x(), end.y()
 
 
 @dataclass
@@ -40,12 +50,19 @@ class DrawnRect(DrawnShape):
         with ToolBase.black_pen(painter):
             painter.drawRect(self.rect)
 
+    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+        start = self.rect.topLeft()
+        end = self.rect.bottomRight()
+        return start.x(), start.y(), end.x(), end.y()
+
 
 @dataclass
 class DrawnEllipse(DrawnShape):
     center: QPoint
     rx: float
     ry: float
+    start: QPoint
+    end: QPoint
 
     def draw(self, painter: QPainter) -> None:
         with ToolBase.black_pen(painter):
@@ -53,6 +70,9 @@ class DrawnEllipse(DrawnShape):
             painter.setBrush(brush)
             painter.drawEllipse(self.center, self.rx, self.ry)
             painter.setBrush(Qt.BrushStyle.NoBrush)
+
+    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+        return self.start.x(), self.start.y(), self.end.x(), self.end.y()
 
 
 @dataclass
@@ -66,6 +86,9 @@ class DrawnLineWithCircles(DrawnShape):
             painter.drawLine(self.start, self.end)
             painter.drawEllipse(self.start, self.radius, self.radius)
             painter.drawEllipse(self.end, self.radius, self.radius)
+
+    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+        return self.start.x(), self.start.y(), self.end.x(), self.end.y()
 
 
 @dataclass
@@ -95,6 +118,14 @@ class DrawnCube(DrawnShape):
                 QPoint(back_start.x(), back_end.y()),
             )
             painter.drawLine(self.front_end, back_end)
+
+    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+        return (
+            self.front_start.x(),
+            self.front_start.y(),
+            self.front_end.x(),
+            self.front_end.y(),
+        )
 
 
 class ToolBase(ABC):
@@ -211,14 +242,16 @@ class EllipseTool(ToolBase):
 
     def move(self, widget, pos: QPoint) -> None:
         self.end = pos
-        self.rx = (self.end.x() - self.start.x()) / 2
-        self.ry = (self.end.y() - self.start.y()) / 2
+        self.rx = (self.end.x() - self.start.x()) // 2
+        self.ry = (self.end.y() - self.start.y()) // 2
         self.center = QPoint(self.start.x() + self.rx, self.start.y() + self.ry)
         widget.update()
 
     def release(self, widget, pos: QPoint) -> None:
         if self.center and self.rx and self.ry:
-            widget.strokes.append(DrawnEllipse(self.center, self.rx, self.ry))
+            widget.strokes.append(
+                DrawnEllipse(self.center, self.rx, self.ry, self.start, self.end)
+            )
             widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:

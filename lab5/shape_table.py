@@ -11,7 +11,6 @@ class ShapeTableModel(QAbstractTableModel):
         self._headers = ["x1", "y1", "x2", "y2"]
         self._data = [[1, 2, 3, 4], [5, 6, 7, 8]]
 
-
     def rowCount(self, parent=None):
         return len(self._data)
 
@@ -63,10 +62,6 @@ class ShapeTable(QWidget):
         self.table_view = QTableView(self)
         self.table_view.setModel(self.table_model)
 
-
         layout = QVBoxLayout()
         layout.addWidget(self.table_view)
         self.setLayout(layout)
-
-
-
