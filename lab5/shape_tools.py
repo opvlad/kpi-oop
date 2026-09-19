@@ -25,7 +25,10 @@ class DrawnShape(ABC):
     @abstractmethod
     def get_coords(
         self,
-    ) -> tuple[float | int, float | int, float | int, float | int]: ...
+    ) -> tuple[int, int, int, int]: ...
+
+    @abstractmethod
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]: ...
 
 
 @dataclass
@@ -36,10 +39,32 @@ class DrawnPath(DrawnShape):
         with ToolBase.black_pen(painter):
             painter.drawPath(self.path)
 
-    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+    def get_coords(self) -> tuple[int, int, int, int]:
         start = self.path.pointAtPercent(0.0)
         end = self.path.pointAtPercent(1.0)
-        return start.x(), start.y(), end.x(), end.y()
+        return int(start.x()), int(start.y()), int(end.x()), int(end.y())
+
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return TOOLS_NAMES[Tool.FREEHAND], *coords
+
+
+@dataclass
+class DrawnLine(DrawnShape):
+    path: QPainterPath
+
+    def draw(self, painter: QPainter) -> None:
+        with ToolBase.black_pen(painter):
+            painter.drawPath(self.path)
+
+    def get_coords(self) -> tuple[int, int, int, int]:
+        start = self.path.pointAtPercent(0.0)
+        end = self.path.pointAtPercent(1.0)
+        return int(start.x()), int(start.y()), int(end.x()), int(end.y())
+
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return TOOLS_NAMES[Tool.LINE], *coords
 
 
 @dataclass
@@ -50,10 +75,14 @@ class DrawnRect(DrawnShape):
         with ToolBase.black_pen(painter):
             painter.drawRect(self.rect)
 
-    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+    def get_coords(self) -> tuple[int, int, int, int]:
         start = self.rect.topLeft()
         end = self.rect.bottomRight()
         return start.x(), start.y(), end.x(), end.y()
+
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return TOOLS_NAMES[Tool.RECTANGLE], *coords
 
 
 @dataclass
@@ -71,8 +100,12 @@ class DrawnEllipse(DrawnShape):
             painter.drawEllipse(self.center, self.rx, self.ry)
             painter.setBrush(Qt.BrushStyle.NoBrush)
 
-    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+    def get_coords(self) -> tuple[int, int, int, int]:
         return self.start.x(), self.start.y(), self.end.x(), self.end.y()
+
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return TOOLS_NAMES[Tool.ELLIPSE], *coords
 
 
 @dataclass
@@ -87,8 +120,12 @@ class DrawnLineWithCircles(DrawnShape):
             painter.drawEllipse(self.start, self.radius, self.radius)
             painter.drawEllipse(self.end, self.radius, self.radius)
 
-    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+    def get_coords(self) -> tuple[int, int, int, int]:
         return self.start.x(), self.start.y(), self.end.x(), self.end.y()
+
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return TOOLS_NAMES[Tool.LINE_WITH_CIRCLES], *coords
 
 
 @dataclass
@@ -119,13 +156,17 @@ class DrawnCube(DrawnShape):
             )
             painter.drawLine(self.front_end, back_end)
 
-    def get_coords(self) -> tuple[float | int, float | int, float | int, float | int]:
+    def get_coords(self) -> tuple[int, int, int, int]:
         return (
             self.front_start.x(),
             self.front_start.y(),
             self.front_end.x(),
             self.front_end.y(),
         )
+
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return TOOLS_NAMES[Tool.CUBE], *coords
 
 
 class ToolBase(ABC):
@@ -193,7 +234,7 @@ class LineTool(ToolBase):
         path = QPainterPath()
         path.moveTo(self.start)
         path.lineTo(pos)
-        shape_repo.add(DrawnPath(path))
+        shape_repo.add(DrawnLine(path))
         widget.update()
 
     def draw_preview(self, widget, painter: QPainter) -> None:
@@ -336,4 +377,14 @@ TOOLS: dict[Tool, Type[ToolBase]] = {
     Tool.ELLIPSE: EllipseTool,
     Tool.LINE_WITH_CIRCLES: LineWithCirclesTool,
     Tool.CUBE: CubeTool,
+}
+
+
+TOOLS_NAMES: dict[Tool, str] = {
+    Tool.FREEHAND: "Крива",
+    Tool.LINE: "Лінія",
+    Tool.RECTANGLE: "Прямокутник",
+    Tool.ELLIPSE: "Еліпс",
+    Tool.LINE_WITH_CIRCLES: "Лінія з кружечками",
+    Tool.CUBE: "Куб",
 }

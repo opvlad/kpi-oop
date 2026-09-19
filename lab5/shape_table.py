@@ -16,7 +16,7 @@ class ShapeTableModel(QAbstractTableModel):
         if not self._is_initialized:
             super().__init__()
             self._shapes = None
-            self._headers = ["x1", "y1", "x2", "y2"]
+            self._headers = ["Shape", "x1", "y1", "x2", "y2"]
             self._is_initialized = True
 
     def set_shapes_reference(self, shapes):
@@ -51,7 +51,9 @@ class ShapeTableModel(QAbstractTableModel):
             return None
 
         if role == Qt.ItemDataRole.DisplayRole:
-            return str(self._shapes[index.row()][index.column()])
+            shape = self._shapes[index.row()]
+            data = shape.get_name_and_coords()
+            return data[index.column()]
 
         return None
 
@@ -67,7 +69,7 @@ class ShapeTable(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Shapes Table")
-        self.resize(500, 400)
+        self.resize(600, 600)
 
         self.table_model = ShapeTableModel()
         self.table_view = QTableView(self)

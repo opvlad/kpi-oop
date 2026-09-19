@@ -79,14 +79,14 @@ class ObjectsMenu:
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Lab 3")
+        self.setWindowTitle("Lab 5")
         self.resize(800, 600)
 
         self.canvas = Canvas()
         self.setCentralWidget(self.canvas)
 
         self.table_window = None
-        # self.show_table_window()
+        self.show_table_window()
 
         self._create_actions()
         self._create_menubar()
