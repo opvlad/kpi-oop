@@ -1,5 +1,3 @@
-import typing
-
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout

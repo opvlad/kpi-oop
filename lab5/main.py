@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.canvas)
 
         self.table_window = None
-        self.show_table_window()
+        # self.show_table_window()
 
         self._create_actions()
         self._create_menubar()
@@ -103,8 +103,8 @@ class MainWindow(QMainWindow):
 
         self.table_window.show()
 
-        self.table_window.raise_()
-        self.table_window.activateWindow()
+        # self.table_window.raise_()
+        # self.table_window.activateWindow()
 
     def closeEvent(self, event) -> None:
         if self.table_window:
@@ -141,7 +141,9 @@ class MainWindow(QMainWindow):
         self.line_with_circles_action.setIcon(QIcon("../icons/linewithcircles.png"))
         self.cube_action.setIcon(QIcon("../icons/box.svg"))
 
-        self.open_table_action = QAction("Open shape table", self)
+        self.open_table_action = QAction(
+            "Відкрити таблицю", self, toolTip="Відкрити таблицю фігур"
+        )
         self.open_table_action.setShortcut("Ctrl+T")
         self.open_table_action.triggered.connect(self.show_table_window)
 
