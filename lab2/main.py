@@ -3,7 +3,15 @@ from typing import Type
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QBrush, QPalette
+from PySide6.QtGui import (
+    QAction,
+    QActionGroup,
+    QPen,
+    QColor,
+    QPainter,
+    QBrush,
+    QPalette,
+)
 
 from shape_tools import Tool, TOOLS, ToolBase
 

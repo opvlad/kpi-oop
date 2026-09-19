@@ -4,8 +4,10 @@ from typing import Type
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
+from lab5.shape_table import ShapeTable
 
 from shape_tools import Tool, TOOLS, ToolBase
+from shape_table import ShapeTable
 
 
 class Canvas(QWidget):
@@ -84,6 +86,9 @@ class MainWindow(QMainWindow):
         self.canvas = Canvas()
         self.setCentralWidget(self.canvas)
 
+        self.table_window = None
+        self.show_table_window()
+
         self._create_actions()
         self._create_menubar()
         self._create_toolbars()
@@ -92,6 +97,20 @@ class MainWindow(QMainWindow):
         for action in self.objects_menu.menu.actions():
             if action.isChecked() and isinstance(action, ObjectsAction):
                 self.canvas.current_tool_class = action.tool_class
+
+    def show_table_window(self):
+        if self.table_window is None:
+            self.table_window = ShapeTable()
+
+        self.table_window.show()
+
+        self.table_window.raise_()
+        self.table_window.activateWindow()
+
+    def closeEvent(self, event) -> None:
+        if self.table_window:
+            self.table_window.close()
+        event.accept()
 
     def _create_actions(self):
         self.point_action = ObjectsAction(
@@ -107,15 +126,30 @@ class MainWindow(QMainWindow):
         self.ellipse_action = ObjectsAction(
             "Еліпс", self, TOOLS[Tool.ELLIPSE], "Намалювати еліпс"
         )
+        self.line_with_circles_action = ObjectsAction(
+            "Лінія з кружечками",
+            self,
+            TOOLS[Tool.LINE_WITH_CIRCLES],
+            "Намалювати лінію з кружечками",
+        )
+        self.cube_action = ObjectsAction(
+            "Куб", self, TOOLS[Tool.CUBE], "Намалювати каркас куба"
+        )
         self.point_action.setIcon(QIcon("../icons/pencil.svg"))
         self.line_action.setIcon(QIcon("../icons/minus.svg"))
         self.rectangle_action.setIcon(QIcon("../icons/rectangle.svg"))
         self.ellipse_action.setIcon(QIcon("../icons/ellipse.svg"))
+        self.line_with_circles_action.setIcon(QIcon("../icons/linewithcircles.png"))
+        self.cube_action.setIcon(QIcon("../icons/box.svg"))
+
+        self.open_table_action = QAction("Open shape table", self)
+        self.open_table_action.setShortcut("Ctrl+T")
+        self.open_table_action.triggered.connect(self.show_table_window)
 
     def _create_menubar(self):
         menubar = self.menuBar()
 
-        file_menu = menubar.addMenu("Файл")  # noqa
+        self.file_menu = menubar.addMenu("Файл")
         self.objects_menu = ObjectsMenu(menubar)
         help_menu = menubar.addMenu("Довідка")  # noqa
 
@@ -125,8 +159,11 @@ class MainWindow(QMainWindow):
                 self.line_action,
                 self.rectangle_action,
                 self.ellipse_action,
+                self.line_with_circles_action,
+                self.cube_action,
             ]
         )
+        self.file_menu.addAction(self.open_table_action)
 
     def _create_toolbars(self):
         toolbar = self.addToolBar("Shapes")
@@ -135,6 +172,8 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.line_action)
         toolbar.addAction(self.rectangle_action)
         toolbar.addAction(self.ellipse_action)
+        toolbar.addAction(self.line_with_circles_action)
+        toolbar.addAction(self.cube_action)
 
 
 if __name__ == "__main__":
