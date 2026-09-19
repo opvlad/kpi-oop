@@ -7,7 +7,8 @@ from shape_table import ShapeTableModel
 class ShapeRepository:
     def __init__(self):
         self._shapes = []
-        self.table_model = ShapeTableModel(self._shapes)
+        self.table_model = ShapeTableModel()
+        self.table_model.set_shapes_reference(self._shapes)
 
     def get_shapes(self):
         return self._shapes

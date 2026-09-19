@@ -12,12 +12,15 @@ class ShapeTableModel(QAbstractTableModel):
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, shapes):
+    def __init__(self):
         if not self._is_initialized:
             super().__init__()
-            self._shapes = shapes
+            self._shapes = None
             self._headers = ["x1", "y1", "x2", "y2"]
             self._is_initialized = True
+
+    def set_shapes_reference(self, shapes):
+        self._shapes = shapes
 
     def rowCount(self, parent=None):
         return len(self._shapes)
