@@ -8,6 +8,8 @@ from PySide6.QtGui import QColor
 from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QPainter, QPainterPath, QBrush, Qt, QPen
 
+from events import shape_events
+
 
 class Tool(Enum):
     FREEHAND = auto()
@@ -143,7 +145,7 @@ class ToolBase(ABC):
 
     @staticmethod
     def draw_finished(widget, painter: QPainter) -> None:
-        for shape in widget.strokes:
+        for shape in widget.shape_repo.get_shapes():
             shape.draw(painter)
 
     @staticmethod
@@ -169,8 +171,9 @@ class FreehandTool(ToolBase):
         widget.update()
 
     def release(self, widget, pos: QPoint) -> None:
-        widget.strokes.append(DrawnPath(self.path))
+        widget.shape_repo.add(DrawnPath(self.path))
         widget.update()
+        shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.path:
@@ -193,8 +196,9 @@ class LineTool(ToolBase):
         path = QPainterPath()
         path.moveTo(self.start)
         path.lineTo(pos)
-        widget.strokes.append(DrawnPath(path))
+        widget.shape_repo.add(DrawnPath(path))
         widget.update()
+        shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.start and self.end:
@@ -220,8 +224,9 @@ class RectTool(ToolBase):
     def release(self, widget, pos: QPoint) -> None:
         if self.start and self.end:
             rect = QRect(self.start, self.end)
-            widget.strokes.append(DrawnRect(rect))
+            widget.shape_repo.add(DrawnRect(rect))
             widget.update()
+            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.start and self.end:
@@ -249,10 +254,11 @@ class EllipseTool(ToolBase):
 
     def release(self, widget, pos: QPoint) -> None:
         if self.center and self.rx and self.ry:
-            widget.strokes.append(
+            widget.shape_repo.add(
                 DrawnEllipse(self.center, self.rx, self.ry, self.start, self.end)
             )
             widget.update()
+            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.center and self.rx and self.ry:
@@ -267,10 +273,11 @@ class LineWithCirclesTool(LineTool, EllipseTool):
 
     def release(self, widget, pos: QPoint) -> None:
         if self.start and self.end:
-            widget.strokes.append(
+            widget.shape_repo.add(
                 DrawnLineWithCircles(self.start, self.end, self.radius)
             )
             widget.update()
+            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         LineTool.draw_preview(self, widget, painter)
@@ -290,8 +297,9 @@ class CubeTool(RectTool, LineTool):
 
     def release(self, widget, pos: QPoint) -> None:
         if self.start and self.end:
-            widget.strokes.append(DrawnCube(self.start, self.end))
+            widget.shape_repo.add(DrawnCube(self.start, self.end))
             widget.update()
+            shape_events.emit("shape_created")
 
     def draw_preview(self, widget, painter: QPainter) -> None:
         if self.start and self.end:

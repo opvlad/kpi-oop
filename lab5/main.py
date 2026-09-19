@@ -6,13 +6,14 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
 
 from shape_tools import Tool, TOOLS, ToolBase
-from shape_table import ShapeTable
+from shape_table import ShapeTable, ShapeTableModel
+from repository import ShapeRepository
 
 
 class Canvas(QWidget):
     def __init__(self):
         super().__init__()
-        self.strokes = []
+        self.shape_repo = ShapeRepository(ShapeTableModel())
         self.pen = QPen(QColor("red"), 3, Qt.PenStyle.DashLine)
 
         self.setAutoFillBackground(True)
