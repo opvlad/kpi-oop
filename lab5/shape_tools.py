@@ -20,7 +20,7 @@ class Tool(Enum):
 
 class DrawnShape(ABC):
     @abstractmethod
-    def draw(self, painter: QPainter) -> None: ...
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None: ...
 
     @abstractmethod
     def get_coords(
@@ -36,8 +36,8 @@ class DrawnShape(ABC):
 class DrawnPath(DrawnShape):
     path: QPainterPath
 
-    def draw(self, painter: QPainter) -> None:
-        with ToolBase.black_pen(painter):
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None:
+        with ToolBase.shape_pen(painter, is_selected):
             painter.drawPath(self.path)
 
     def get_coords(self) -> tuple[int, int, int, int]:
@@ -50,8 +50,8 @@ class DrawnPath(DrawnShape):
 class DrawnLine(DrawnShape):
     path: QPainterPath
 
-    def draw(self, painter: QPainter) -> None:
-        with ToolBase.black_pen(painter):
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None:
+        with ToolBase.shape_pen(painter, is_selected):
             painter.drawPath(self.path)
 
     def get_coords(self) -> tuple[int, int, int, int]:
@@ -64,8 +64,8 @@ class DrawnLine(DrawnShape):
 class DrawnRect(DrawnShape):
     rect: QRect
 
-    def draw(self, painter: QPainter) -> None:
-        with ToolBase.black_pen(painter):
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None:
+        with ToolBase.shape_pen(painter, is_selected):
             painter.drawRect(self.rect)
 
     def get_coords(self) -> tuple[int, int, int, int]:
@@ -82,8 +82,8 @@ class DrawnEllipse(DrawnShape):
     start: QPoint
     end: QPoint
 
-    def draw(self, painter: QPainter) -> None:
-        with ToolBase.black_pen(painter):
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None:
+        with ToolBase.shape_pen(painter, is_selected):
             brush = QBrush(QColor("yellow"))
             painter.setBrush(brush)
             painter.drawEllipse(self.center, self.rx, self.ry)
@@ -99,8 +99,8 @@ class DrawnLineWithCircles(DrawnShape):
     end: QPoint
     radius: float
 
-    def draw(self, painter: QPainter) -> None:
-        with ToolBase.black_pen(painter):
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None:
+        with ToolBase.shape_pen(painter, is_selected):
             painter.drawLine(self.start, self.end)
             painter.drawEllipse(self.start, self.radius, self.radius)
             painter.drawEllipse(self.end, self.radius, self.radius)
@@ -114,7 +114,7 @@ class DrawnCube(DrawnShape):
     front_start: QPoint
     front_end: QPoint
 
-    def draw(self, painter: QPainter) -> None:
+    def draw(self, painter: QPainter, is_selected: bool = False) -> None:
         offset_x = (self.front_end.x() - self.front_start.x()) // 3
         offset_y = (self.front_end.y() - self.front_start.y()) // 3
         offset = QPoint(offset_x, -offset_y)
@@ -122,7 +122,7 @@ class DrawnCube(DrawnShape):
         back_start = self.front_start + offset
         back_end = self.front_end + offset
 
-        with ToolBase.black_pen(painter):
+        with ToolBase.shape_pen(painter, is_selected):
             painter.drawRect(QRect(self.front_start, self.front_end))
             painter.drawRect(QRect(back_start, back_end))
 
@@ -166,9 +166,10 @@ class ToolBase(ABC):
 
     @staticmethod
     @contextmanager
-    def black_pen(painter: QPainter) -> Generator[None, None, None]:
+    def shape_pen(painter: QPainter, is_selected: bool) -> Generator[None, None, None]:
         last_pen = painter.pen()
-        pen = QPen(QColor("black"), 3)
+        color = QColor("green") if is_selected else QColor("black")
+        pen = QPen(color, 3)
         painter.setPen(pen)
         yield
         painter.setPen(last_pen)

@@ -1,6 +1,30 @@
+from collections.abc import Callable
+
 from PySide6.QtCore import Qt, QModelIndex
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout
+
+
+class EventEmitter:
+    def __init__(self):
+        self._listeners: dict[str, list[Callable]] = {}
+
+    def on(self, event: str):
+        def decorator(func):
+            if event not in self._listeners:
+                self._listeners[event] = []
+            self._listeners[event].append(func)
+            return func
+
+        return decorator
+
+    def emit(self, event: str, *args, **kwargs):
+        if event in self._listeners:
+            for listener in self._listeners[event]:
+                listener(*args, **kwargs)
+
+
+shape_events = EventEmitter()
 
 
 class ShapeTableModel(QAbstractTableModel):
@@ -75,14 +99,15 @@ class ShapeWindow(QWidget):
         self.table_view = QTableView(self)
         self.table_view.setModel(self.table_model)
 
-        # self.table_view.clicked.connect(self._handle_click_table)
+        self.table_view.clicked.connect(self._handle_click_table)
 
         layout = QVBoxLayout()
         layout.addWidget(self.table_view)
         self.setLayout(layout)
 
-    # def _handle_click_table(self, index: QModelIndex):
-    #     if not index.isValid():
-    #         return
-    #
-    #     print(shpa)
+    @staticmethod
+    def _handle_click_table(index: QModelIndex):
+        if not index.isValid():
+            return
+
+        print(shape_events.emit("shape_selected", index=index.row()))
