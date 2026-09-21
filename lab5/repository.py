@@ -13,7 +13,13 @@ class ShapeRepository:
     def get_shapes(self):
         return self._shapes
 
-    def add(self, shape):
+    def get_shape(self, index: int):
+        if len(self._shapes) < index:
+            return None
+
+        return self._shapes[index]
+
+    def add(self, shape: DrawnShape):
         new_row_index = len(self._shapes)
         self.table_model.beginInsertRows(QModelIndex(), new_row_index, new_row_index)
         self._shapes.append(shape)

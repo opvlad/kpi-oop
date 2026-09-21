@@ -27,8 +27,9 @@ class DrawnShape(ABC):
         self,
     ) -> tuple[int, int, int, int]: ...
 
-    @abstractmethod
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]: ...
+    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
+        coords = self.get_coords()
+        return SHAPE_NAMES[self.__class__], *coords
 
 
 @dataclass
@@ -44,10 +45,6 @@ class DrawnPath(DrawnShape):
         end = self.path.pointAtPercent(1.0)
         return int(start.x()), int(start.y()), int(end.x()), int(end.y())
 
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
-        coords = self.get_coords()
-        return TOOLS_NAMES[Tool.FREEHAND], *coords
-
 
 @dataclass
 class DrawnLine(DrawnShape):
@@ -62,10 +59,6 @@ class DrawnLine(DrawnShape):
         end = self.path.pointAtPercent(1.0)
         return int(start.x()), int(start.y()), int(end.x()), int(end.y())
 
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
-        coords = self.get_coords()
-        return TOOLS_NAMES[Tool.LINE], *coords
-
 
 @dataclass
 class DrawnRect(DrawnShape):
@@ -79,10 +72,6 @@ class DrawnRect(DrawnShape):
         start = self.rect.topLeft()
         end = self.rect.bottomRight()
         return start.x(), start.y(), end.x(), end.y()
-
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
-        coords = self.get_coords()
-        return TOOLS_NAMES[Tool.RECTANGLE], *coords
 
 
 @dataclass
@@ -103,10 +92,6 @@ class DrawnEllipse(DrawnShape):
     def get_coords(self) -> tuple[int, int, int, int]:
         return self.start.x(), self.start.y(), self.end.x(), self.end.y()
 
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
-        coords = self.get_coords()
-        return TOOLS_NAMES[Tool.ELLIPSE], *coords
-
 
 @dataclass
 class DrawnLineWithCircles(DrawnShape):
@@ -122,10 +107,6 @@ class DrawnLineWithCircles(DrawnShape):
 
     def get_coords(self) -> tuple[int, int, int, int]:
         return self.start.x(), self.start.y(), self.end.x(), self.end.y()
-
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
-        coords = self.get_coords()
-        return TOOLS_NAMES[Tool.LINE_WITH_CIRCLES], *coords
 
 
 @dataclass
@@ -163,10 +144,6 @@ class DrawnCube(DrawnShape):
             self.front_end.x(),
             self.front_end.y(),
         )
-
-    def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
-        coords = self.get_coords()
-        return TOOLS_NAMES[Tool.CUBE], *coords
 
 
 class ToolBase(ABC):
@@ -380,11 +357,11 @@ TOOLS: dict[Tool, Type[ToolBase]] = {
 }
 
 
-TOOLS_NAMES: dict[Tool, str] = {
-    Tool.FREEHAND: "Крива",
-    Tool.LINE: "Лінія",
-    Tool.RECTANGLE: "Прямокутник",
-    Tool.ELLIPSE: "Еліпс",
-    Tool.LINE_WITH_CIRCLES: "Лінія з кружечками",
-    Tool.CUBE: "Куб",
+SHAPE_NAMES: dict[Type[DrawnShape], str] = {
+    DrawnPath: "Крива",
+    DrawnLine: "Лінія",
+    DrawnRect: "Прямокутник",
+    DrawnEllipse: "Еліпс",
+    DrawnLineWithCircles: "Лінія з кружечками",
+    DrawnCube: "Куб",
 }

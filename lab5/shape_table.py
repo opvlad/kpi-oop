@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QModelIndex
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout
 
@@ -58,7 +58,7 @@ class ShapeTableModel(QAbstractTableModel):
         return None
 
 
-class ShapeTable(QWidget):
+class ShapeWindow(QWidget):
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -75,6 +75,14 @@ class ShapeTable(QWidget):
         self.table_view = QTableView(self)
         self.table_view.setModel(self.table_model)
 
+        # self.table_view.clicked.connect(self._handle_click_table)
+
         layout = QVBoxLayout()
         layout.addWidget(self.table_view)
         self.setLayout(layout)
+
+    # def _handle_click_table(self, index: QModelIndex):
+    #     if not index.isValid():
+    #         return
+    #
+    #     print(shpa)

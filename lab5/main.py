@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
 
 from shape_tools import Tool, TOOLS, ToolBase
-from shape_table import ShapeTable
+from shape_table import ShapeWindow
 from repository import shape_repo
 
 
@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.canvas)
 
         self.table_window = None
-        self.show_table_window()
+        # self.show_table_window()
 
         self._create_actions()
         self._create_menubar()
@@ -99,12 +99,16 @@ class MainWindow(QMainWindow):
 
     def show_table_window(self):
         if self.table_window is None:
-            self.table_window = ShapeTable()
+            self.table_window = ShapeWindow()
 
         self.table_window.show()
 
-        # self.table_window.raise_()
-        # self.table_window.activateWindow()
+        self.table_window.raise_()
+        self.table_window.activateWindow()
+
+    def hide_table_window(self):
+        if self.table_window:
+            self.table_window.hide()
 
     def closeEvent(self, event) -> None:
         if self.table_window:
@@ -147,6 +151,11 @@ class MainWindow(QMainWindow):
         self.open_table_action.setShortcut("Ctrl+T")
         self.open_table_action.triggered.connect(self.show_table_window)
 
+        self.hide_table_action = QAction(
+            "Закрити таблицю", self, toolTip="Закрити таблицю фігур"
+        )
+        self.hide_table_action.triggered.connect(self.hide_table_window)
+
     def _create_menubar(self):
         menubar = self.menuBar()
 
@@ -165,6 +174,7 @@ class MainWindow(QMainWindow):
             ]
         )
         self.file_menu.addAction(self.open_table_action)
+        self.file_menu.addAction(self.hide_table_action)
 
     def _create_toolbars(self):
         toolbar = self.addToolBar("Shapes")
