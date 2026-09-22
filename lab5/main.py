@@ -1,11 +1,12 @@
 import sys  # noqa
+import json
 from typing import Type
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar, QFileDialog, QMessageBox
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
 
-from shape_tools import Tool, TOOLS, ToolBase
+from shape_tools import Tool, TOOLS, ToolBase, SHAPE_CLASSES
 from shape_table import ShapeWindow, shape_events
 from repository import shape_repo
 
@@ -129,10 +130,43 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def save_file(self):
-        pass
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Зберегти як...",
+            "shapes.json",
+            "(*.json)"
+        )
+
+        if file_path:
+            shapes_data = []
+            for shape in shape_repo.get_shapes():
+                shapes_data.append(shape.to_dict())
+
+            with open(file_path, "w") as file:
+                json.dump(shapes_data, file)
+
+            QMessageBox.information(self, "Файл збережено", f"Файл збережено у {file_path}")
 
     def load_file(self):
-        pass
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Відкрити файл",
+            "",
+            "(*.json)"
+        )
+
+        if file_path:
+            with open(file_path, "r") as file:
+                shapes_data = json.load(file)
+            shape_repo.clear()
+
+            for shape_data in shapes_data:
+                shape_type = shape_data.pop("__type__")
+                shape_class = SHAPE_CLASSES[shape_type]
+                shape = shape_class.from_dict(shape_data)
+                shape_repo.add(shape)
+
+        self.canvas.update()
 
     def _create_actions(self):
         self.point_action = ObjectsAction(

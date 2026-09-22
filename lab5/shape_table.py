@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QModelIndex, QAbstractTableModel
-from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout, QToolBar
+from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout
 
 
 class EventEmitter:

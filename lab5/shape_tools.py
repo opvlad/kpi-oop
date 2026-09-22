@@ -391,6 +391,16 @@ TOOLS: dict[Tool, Type[ToolBase]] = {
 }
 
 
+SHAPE_CLASSES: dict[str, Type[DrawnShape]] = {
+    "DrawnPath": DrawnPath,
+    "DrawnLine": DrawnLine,
+    "DrawnRect": DrawnRect,
+    "DrawnEllipse": DrawnEllipse,
+    "DrawnLineWithCircles": DrawnLineWithCircles,
+    "DrawnCube": DrawnCube,
+}
+
+
 SHAPE_NAMES: dict[Type[DrawnShape], str] = {
     DrawnPath: "Крива",
     DrawnLine: "Лінія",
