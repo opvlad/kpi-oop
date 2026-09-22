@@ -9,14 +9,11 @@ class EventEmitter:
     def __init__(self):
         self._listeners: dict[str, list[Callable]] = {}
 
-    def on(self, event: str):
-        def decorator(func):
-            if event not in self._listeners:
-                self._listeners[event] = []
-            self._listeners[event].append(func)
-            return func
-
-        return decorator
+    def on(self, event: str, func):
+        if event not in self._listeners:
+            self._listeners[event] = []
+        self._listeners[event].append(func)
+        return func
 
     def emit(self, event: str, *args, **kwargs):
         if event in self._listeners:
@@ -37,11 +34,13 @@ class ShapeTableModel(QAbstractTableModel):
         return cls._instance
 
     def __init__(self):
-        if not self._is_initialized:
-            super().__init__()
-            self._shapes = None
-            self._headers = ["Shape", "x1", "y1", "x2", "y2"]
-            self._is_initialized = True
+        if self._is_initialized:
+            return
+
+        super().__init__()
+        self._shapes = None
+        self._headers = ["Shape", "x1", "y1", "x2", "y2"]
+        self._is_initialized = True
 
     def set_shapes_reference(self, shapes):
         self._shapes = shapes
@@ -84,6 +83,7 @@ class ShapeTableModel(QAbstractTableModel):
 
 class ShapeWindow(QWidget):
     _instance = None
+    _is_initialized = False
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -91,6 +91,9 @@ class ShapeWindow(QWidget):
         return cls._instance
 
     def __init__(self):
+        if self._is_initialized:
+            return
+
         super().__init__()
         self.setWindowTitle("Shapes Table")
         self.resize(600, 600)
@@ -99,15 +102,22 @@ class ShapeWindow(QWidget):
         self.table_view = QTableView(self)
         self.table_view.setModel(self.table_model)
 
-        self.table_view.clicked.connect(self._handle_click_table)
+        self.table_view.clicked.connect(self._handle_click_cell)
+        self.table_view.verticalHeader().sectionClicked.connect(
+            self._handle_click_vertical_header
+        )
 
         layout = QVBoxLayout()
         layout.addWidget(self.table_view)
         self.setLayout(layout)
 
     @staticmethod
-    def _handle_click_table(index: QModelIndex):
+    def _handle_click_cell(index: QModelIndex):
         if not index.isValid():
             return
 
-        print(shape_events.emit("shape_selected", index=index.row()))
+        shape_events.emit("shape_selected", index=index.row())
+
+    @staticmethod
+    def _handle_click_vertical_header(index: int):
+        shape_events.emit("shape_selected", index=index)

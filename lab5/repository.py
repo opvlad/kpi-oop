@@ -10,10 +10,10 @@ class ShapeRepository:
         self.table_model = ShapeTableModel()
         self.table_model.set_shapes_reference(self._shapes)
 
-    def get_shapes(self):
+    def get_shapes(self) -> list[DrawnShape]:
         return self._shapes
 
-    def get_shape(self, index: int):
+    def get_shape(self, index: int) -> DrawnShape:
         if len(self._shapes) < index:
             return None
 

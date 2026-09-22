@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
 
 from shape_tools import Tool, TOOLS, ToolBase
-from shape_table import ShapeWindow
+from shape_table import ShapeWindow, shape_events
 from repository import shape_repo
 
 
@@ -22,6 +22,14 @@ class Canvas(QWidget):
 
         self.current_tool_class = TOOLS[Tool.FREEHAND]
         self.active_tool = None
+
+        self.selected_shape = None
+        shape_events.on("shape_selected", self._handle_shape_selected)
+
+    def _handle_shape_selected(self, index: int):
+        shape = shape_repo.get_shape(index)
+        self.selected_shape = shape
+        self.update()
 
     def mousePressEvent(self, event):
         if self.current_tool_class and event.button() == Qt.MouseButton.LeftButton:
@@ -42,7 +50,7 @@ class Canvas(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(self.pen)
 
-        ToolBase.draw_finished(shape_repo, painter)
+        ToolBase.draw_finished(shape_repo, painter, self.selected_shape)
 
         if self.active_tool:
             self.active_tool.draw_preview(self, painter)
@@ -86,7 +94,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.canvas)
 
         self.table_window = None
-        # self.show_table_window()
+        self.show_table_window()
 
         self._create_actions()
         self._create_menubar()

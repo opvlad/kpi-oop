@@ -160,15 +160,18 @@ class ToolBase(ABC):
     def draw_preview(self, widget, painter: QPainter) -> None: ...
 
     @staticmethod
-    def draw_finished(shape_repo, painter: QPainter) -> None:
+    def draw_finished(
+        shape_repo, painter: QPainter, selected: DrawnShape | None = None
+    ) -> None:
         for shape in shape_repo.get_shapes():
-            shape.draw(painter)
+            is_selected = shape is selected
+            shape.draw(painter, is_selected)
 
     @staticmethod
     @contextmanager
     def shape_pen(painter: QPainter, is_selected: bool) -> Generator[None, None, None]:
         last_pen = painter.pen()
-        color = QColor("green") if is_selected else QColor("black")
+        color = QColor("red") if is_selected else QColor("black")
         pen = QPen(color, 3)
         painter.setPen(pen)
         yield
