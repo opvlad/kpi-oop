@@ -15,7 +15,7 @@ class ShapeRepository:
 
     def get_shape(self, index: int) -> DrawnShape:
         if len(self._shapes) < index:
-            return None
+            return
 
         return self._shapes[index]
 
@@ -24,6 +24,15 @@ class ShapeRepository:
         self.table_model.beginInsertRows(QModelIndex(), new_row_index, new_row_index)
         self._shapes.append(shape)
         self.table_model.endInsertRows()
+
+    def remove_shape(self, shape: DrawnShape):
+        if shape not in self._shapes:
+            return
+
+        shape_index = self._shapes.index(shape)
+        self.table_model.beginRemoveRows(QModelIndex(), shape_index, shape_index)
+        self._shapes.remove(shape)
+        self.table_model.endRemoveRows()
 
 
 shape_repo = ShapeRepository()

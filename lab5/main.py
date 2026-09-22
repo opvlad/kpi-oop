@@ -25,10 +25,15 @@ class Canvas(QWidget):
 
         self.selected_shape = None
         shape_events.on("shape_selected", self._handle_shape_selected)
+        shape_events.on("shape_removed", self._handle_shape_removed)
 
-    def _handle_shape_selected(self, index: int):
-        shape = shape_repo.get_shape(index)
+    def _handle_shape_selected(self, shape_index: int):
+        shape = shape_repo.get_shape(shape_index)
         self.selected_shape = shape
+        self.update()
+
+    def _handle_shape_removed(self):
+        shape_repo.remove_shape(self.selected_shape)
         self.update()
 
     def mousePressEvent(self, event):
@@ -94,7 +99,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.canvas)
 
         self.table_window = None
-        self.show_table_window()
+        # self.show_table_window()
 
         self._create_actions()
         self._create_menubar()
@@ -116,12 +121,18 @@ class MainWindow(QMainWindow):
 
     def hide_table_window(self):
         if self.table_window:
-            self.table_window.hide()
+            self.table_window.close()
 
     def closeEvent(self, event) -> None:
         if self.table_window:
             self.table_window.close()
         event.accept()
+
+    def save_file(self):
+        pass
+
+    def load_file(self):
+        pass
 
     def _create_actions(self):
         self.point_action = ObjectsAction(
@@ -164,6 +175,11 @@ class MainWindow(QMainWindow):
         )
         self.hide_table_action.triggered.connect(self.hide_table_window)
 
+        self.save_file_action = QAction("Зберегти", self, toolTip="Зберегти файл")
+        self.save_file_action.triggered.connect(self.save_file)
+        self.load_file_action = QAction("Відкрити", self, toolTip="Відкрити файл")
+        self.load_file_action.triggered.connect(self.load_file)
+
     def _create_menubar(self):
         menubar = self.menuBar()
 
@@ -181,6 +197,8 @@ class MainWindow(QMainWindow):
                 self.cube_action,
             ]
         )
+        self.file_menu.addAction(self.save_file_action)
+        self.file_menu.addAction(self.load_file_action)
         self.file_menu.addAction(self.open_table_action)
         self.file_menu.addAction(self.hide_table_action)
 

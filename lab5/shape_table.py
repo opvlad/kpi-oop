@@ -1,8 +1,8 @@
 from collections.abc import Callable
 
-from PySide6.QtCore import Qt, QModelIndex
-from PySide6.QtCore import QAbstractTableModel
-from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QModelIndex, QAbstractTableModel
+from PySide6.QtWidgets import QTableView, QWidget, QVBoxLayout, QToolBar
 
 
 class EventEmitter:
@@ -107,17 +107,27 @@ class ShapeWindow(QWidget):
             self._handle_click_vertical_header
         )
 
+        remove_action = QAction("Видалити фігуру", self)
+        remove_action.setShortcut("Delete")
+        remove_action.triggered.connect(self._handle_remove_action)
+        self.table_view.addAction(remove_action)
+
         layout = QVBoxLayout()
         layout.addWidget(self.table_view)
         self.setLayout(layout)
+        self._is_initialized = True
 
     @staticmethod
-    def _handle_click_cell(index: QModelIndex):
-        if not index.isValid():
+    def _handle_click_cell(cell_index: QModelIndex):
+        if not cell_index.isValid():
             return
 
-        shape_events.emit("shape_selected", index=index.row())
+        shape_events.emit("shape_selected", shape_index=cell_index.row())
 
     @staticmethod
-    def _handle_click_vertical_header(index: int):
-        shape_events.emit("shape_selected", index=index)
+    def _handle_click_vertical_header(row: int):
+        shape_events.emit("shape_selected", shape_index=row)
+
+    @staticmethod
+    def _handle_remove_action():
+        shape_events.emit("shape_removed")

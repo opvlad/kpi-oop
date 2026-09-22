@@ -27,6 +27,13 @@ class DrawnShape(ABC):
         self,
     ) -> tuple[int, int, int, int]: ...
 
+    @abstractmethod
+    def to_dict(self) -> dict: ...
+
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, data: dict) -> "DrawnShape": ...
+
     def get_name_and_coords(self) -> tuple[str, int, int, int, int]:
         coords = self.get_coords()
         return SHAPE_NAMES[self.__class__], *coords
@@ -44,6 +51,29 @@ class DrawnPath(DrawnShape):
         start = self.path.pointAtPercent(0.0)
         end = self.path.pointAtPercent(1.0)
         return int(start.x()), int(start.y()), int(end.x()), int(end.y())
+
+    def to_dict(self) -> dict:
+        points = []
+        for i in range(self.path.elementCount()):
+            element = self.path.elementAt(i)
+            points.append((element.x, element.y))
+
+        return {
+            "__type__" : "DrawnPath",
+            "points": points,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DrawnPath":
+        path = QPainterPath()
+        points = [QPoint(x, y) for x, y in data["points"]]
+
+        start = points[0]
+        path.moveTo(start)
+        for point in points[1:]:
+            path.lineTo(point)
+
+        return cls(path)
 
 
 @dataclass
