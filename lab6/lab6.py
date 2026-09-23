@@ -81,8 +81,8 @@ class MainWindow(QMainWindow):
             params = dialog.get_parameters()
             pyperclip.copy(params)
 
-            self.process2 = subprocess.Popen([sys.executable, "object2.py"])
             self.process3 = subprocess.Popen([sys.executable, 'object3.py'])
+            self.process2 = subprocess.Popen([sys.executable, "object2.py"])
 
     def closeEvent(self, event) -> None:
         self.clear_processes()
