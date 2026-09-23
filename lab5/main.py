@@ -3,7 +3,14 @@ import json
 from typing import Type
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMenuBar, QFileDialog, QMessageBox
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QMenuBar,
+    QFileDialog,
+    QMessageBox,
+)
 from PySide6.QtGui import QAction, QActionGroup, QPen, QColor, QPainter, QIcon, QPalette
 
 from shape_tools import Tool, TOOLS, ToolBase, SHAPE_CLASSES
@@ -131,10 +138,7 @@ class MainWindow(QMainWindow):
 
     def save_file(self):
         file_path, _ = QFileDialog.getSaveFileName(
-            self,
-            "Зберегти як...",
-            "shapes.json",
-            "(*.json)"
+            self, "Зберегти як...", "shapes.json", "(*.json)"
         )
 
         if file_path:
@@ -145,14 +149,13 @@ class MainWindow(QMainWindow):
             with open(file_path, "w") as file:
                 json.dump(shapes_data, file)
 
-            QMessageBox.information(self, "Файл збережено", f"Файл збережено у {file_path}")
+            QMessageBox.information(
+                self, "Файл збережено", f"Файл збережено у {file_path}"
+            )
 
     def load_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Відкрити файл",
-            "",
-            "(*.json)"
+            self, "Відкрити файл", "", "(*.json)"
         )
 
         if file_path:

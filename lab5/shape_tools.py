@@ -59,7 +59,7 @@ class DrawnPath(DrawnShape):
             points.append((element.x, element.y))
 
         return {
-            "__type__" : "DrawnPath",
+            "__type__": "DrawnPath",
             "points": points,
         }
 
@@ -121,6 +121,19 @@ class DrawnRect(DrawnShape):
         end = self.rect.bottomRight()
         return start.x(), start.y(), end.x(), end.y()
 
+    def to_dict(self) -> dict:
+        return {
+            "__type__": "DrawnRect",
+            "x": self.rect.x(),
+            "y": self.rect.y(),
+            "width": self.rect.width(),
+            "height": self.rect.height(),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DrawnRect":
+        return cls(QRect(data["x"], data["y"], data["width"], data["height"]))
+
 
 @dataclass
 class DrawnEllipse(DrawnShape):
@@ -140,6 +153,25 @@ class DrawnEllipse(DrawnShape):
     def get_coords(self) -> tuple[int, int, int, int]:
         return self.start.x(), self.start.y(), self.end.x(), self.end.y()
 
+    def to_dict(self) -> dict:
+        return {
+            "__type__": "DrawnEllipse",
+            "center": (self.center.x(), self.center.y()),
+            "rx": self.rx,
+            "ry": self.ry,
+            "start": (self.start.x(), self.start.y()),
+            "end": (self.end.x(), self.end.y()),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DrawnEllipse":
+        center = QPoint(data["center"][0], data["center"][1])
+        rx = data["rx"]
+        ry = data["ry"]
+        start = QPoint(data["start"][0], data["start"][1])
+        end = QPoint(data["end"][0], data["end"][1])
+        return cls(center, rx, ry, start, end)
+
 
 @dataclass
 class DrawnLineWithCircles(DrawnShape):
@@ -155,6 +187,21 @@ class DrawnLineWithCircles(DrawnShape):
 
     def get_coords(self) -> tuple[int, int, int, int]:
         return self.start.x(), self.start.y(), self.end.x(), self.end.y()
+
+    def to_dict(self) -> dict:
+        return {
+            "__type__": "DrawnLineWithCircles",
+            "start": (self.start.x(), self.start.y()),
+            "end": (self.end.x(), self.end.y()),
+            "radius": self.radius,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DrawnLineWithCircles":
+        start = QPoint(data["start"][0], data["start"][1])
+        end = QPoint(data["end"][0], data["end"][1])
+        radius = data["radius"]
+        return cls(start, end, radius)
 
 
 @dataclass
@@ -192,6 +239,19 @@ class DrawnCube(DrawnShape):
             self.front_end.x(),
             self.front_end.y(),
         )
+
+    def to_dict(self) -> dict:
+        return {
+            "__type__": "DrawnCube",
+            "front_start": (self.front_start.x(), self.front_start.y()),
+            "front_end": (self.front_end.x(), self.front_end.y()),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DrawnCube":
+        front_start = QPoint(data["front_start"][0], data["front_start"][1])
+        front_end = QPoint(data["front_end"][0], data["front_end"][1])
+        return cls(front_start, front_end)
 
 
 class ToolBase(ABC):
