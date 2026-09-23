@@ -146,12 +146,15 @@ class MainWindow(QMainWindow):
             for shape in shape_repo.get_shapes():
                 shapes_data.append(shape.to_dict())
 
-            with open(file_path, "w") as file:
-                json.dump(shapes_data, file)
+            try:
+                with open(file_path, "w") as file:
+                    json.dump(shapes_data, file)
+                QMessageBox.information(
+                    self, "Файл збережено", f"Файл збережено у {file_path}"
+                )
+            except Exception as e:
+                QMessageBox.critical(self, "Помилка", f"Не вдалося зберегти файл:\n{e}")
 
-            QMessageBox.information(
-                self, "Файл збережено", f"Файл збережено у {file_path}"
-            )
 
     def load_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -159,17 +162,20 @@ class MainWindow(QMainWindow):
         )
 
         if file_path:
-            with open(file_path, "r") as file:
-                shapes_data = json.load(file)
-            shape_repo.clear()
+            try:
+                with open(file_path, "r") as file:
+                    shapes_data = json.load(file)
+                shape_repo.clear()
 
-            for shape_data in shapes_data:
-                shape_type = shape_data.pop("__type__")
-                shape_class = SHAPE_CLASSES[shape_type]
-                shape = shape_class.from_dict(shape_data)
-                shape_repo.add(shape)
+                for shape_data in shapes_data:
+                    shape_type = shape_data.pop("__type__")
+                    shape_class = SHAPE_CLASSES[shape_type]
+                    shape = shape_class.from_dict(shape_data)
+                    shape_repo.add(shape)
+                    self.canvas.update()
+            except Exception as e:
+                QMessageBox.critical(self, "Помилка", f"Не вдалося завантажити файл:\n{e}")
 
-        self.canvas.update()
 
     def _create_actions(self):
         self.point_action = ObjectsAction(

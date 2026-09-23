@@ -13,10 +13,7 @@ class ShapeRepository:
     def get_shapes(self) -> list[DrawnShape]:
         return self._shapes
 
-    def get_shape(self, index: int) -> DrawnShape | None:
-        if len(self._shapes) < index:
-            return None
-
+    def get_shape(self, index: int) -> DrawnShape:
         return self._shapes[index]
 
     def add(self, shape: DrawnShape):

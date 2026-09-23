@@ -70,9 +70,6 @@ class ShapeTableModel(QAbstractTableModel):
         return None
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
-        if not index.isValid():
-            return None
-
         if role == Qt.ItemDataRole.DisplayRole:
             shape = self._shapes[index.row()]
             data = shape.get_name_and_coords()
@@ -119,9 +116,6 @@ class ShapeWindow(QWidget):
 
     @staticmethod
     def _handle_click_cell(cell_index: QModelIndex):
-        if not cell_index.isValid():
-            return
-
         shape_events.emit("shape_selected", shape_index=cell_index.row())
 
     @staticmethod
