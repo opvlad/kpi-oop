@@ -89,6 +89,24 @@ class DrawnLine(DrawnShape):
         end = self.path.pointAtPercent(1.0)
         return int(start.x()), int(start.y()), int(end.x()), int(end.y())
 
+    def to_dict(self) -> dict:
+        start = self.path.pointAtPercent(0.0)
+        end = self.path.pointAtPercent(1.0)
+        return {
+            "__type__": "DrawnLine",
+            "start": (start.x(), start.y()),
+            "end": (end.x(), end.y()),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DrawnLine":
+        start = QPoint(data["start"][0], data["start"][1])
+        end = QPoint(data["end"][0], data["end"][1])
+        path = QPainterPath()
+        path.moveTo(start)
+        path.lineTo(end)
+        return cls(path)
+
 
 @dataclass
 class DrawnRect(DrawnShape):
