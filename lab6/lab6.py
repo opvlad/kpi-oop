@@ -1,12 +1,8 @@
-import os
 import sys
 import subprocess
 
 import pyperclip
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QDialog, QVBoxLayout, QLabel, QLineEdit
-
-
-# os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 
 class ParameterDialog(QDialog):
@@ -61,6 +57,8 @@ class ParameterDialog(QDialog):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.process2 = None
+        self.process3 = None
         self.setWindowTitle("Lab6")
         self.resize(300, 200)
 
@@ -68,18 +66,28 @@ class MainWindow(QMainWindow):
         self.button.setGeometry(100, 80, 100, 40)
         self.button.clicked.connect(self.start_process)
 
-    @staticmethod
-    def start_process() -> None:
+    def clear_processes(self):
+        if self.process2:
+            self.process2.terminate()
+        if self.process3:
+            self.process3.terminate()
+
+    def start_process(self) -> None:
+        if self.process2 or self.process3:
+            self.clear_processes()
+
         dialog = ParameterDialog()
         if dialog.exec():
             params = dialog.get_parameters()
             pyperclip.copy(params)
 
-            process2 = subprocess.Popen([sys.executable, "object2.py"])
-            process3 = subprocess.Popen([sys.executable, 'object3.py'])
+            self.process2 = subprocess.Popen([sys.executable, "object2.py"])
+            self.process3 = subprocess.Popen([sys.executable, 'object3.py'])
 
-            process2.wait()
-            process3.wait()
+    def closeEvent(self, event) -> None:
+        self.clear_processes()
+
+        event.accept()
 
 
 if __name__ == "__main__":
