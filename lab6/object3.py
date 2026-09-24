@@ -3,6 +3,7 @@ import socket
 from ast import literal_eval
 
 import pyperclip
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QMessageBox
 from PySide6.QtCharts import QLineSeries, QChart, QChartView
 from PySide6.QtGui import QPainter, QColor, QPalette
@@ -27,6 +28,11 @@ class GraphWidget(QWidget):
         chart.addSeries(series)
         chart.createDefaultAxes()
         chart.setTitle("Графік функції")
+        axis_x = chart.axes(Qt.Orientation.Horizontal)[0]
+        axis_x.setTitleText("x")
+
+        axis_y = chart.axes(Qt.Orientation.Vertical)[0]
+        axis_y.setTitleText("y")
 
         chart_view = QChartView(chart)
         chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
